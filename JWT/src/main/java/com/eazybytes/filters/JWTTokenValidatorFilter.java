@@ -28,8 +28,10 @@ public class JWTTokenValidatorFilter extends OncePerRequestFilter {
         if(jwtHeader!=null) {
             try {
                 SecretKey key = Keys.hmacShaKeyFor(SecurityConstant.JWT_KEY.getBytes(StandardCharsets.UTF_8));
-                Claims clams = Jwts.parserBuilder().setSigningKey(key).build()
-                        .parseClaimsJwt(jwtHeader)
+                Claims clams = Jwts.parserBuilder()
+                        .setSigningKey(key)
+                        .build()
+                        .parseClaimsJws(jwtHeader)
                         .getBody();
                 String userName = (String) clams.get("username");
                 String commaSeparatedAuthorities = (String) clams.get("authorities");

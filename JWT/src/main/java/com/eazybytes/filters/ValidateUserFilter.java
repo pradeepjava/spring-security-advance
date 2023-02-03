@@ -4,17 +4,21 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-public class ValidateUserFilter implements Filter {
+public class ValidateUserFilter extends OncePerRequestFilter {
     Charset charset = StandardCharsets.UTF_8;
-
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        return !request.getServletPath().equals("/user");
+    }
+    @Override
+    public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         HttpServletResponse httpServletResponse=(HttpServletResponse)response;
         String authHeader = httpServletRequest.getHeader("Authorization");
