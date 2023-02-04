@@ -24,7 +24,11 @@ export class ContactComponent implements OnInit {
   saveMessage(contactForm: NgForm) {
     this.dashboardService.saveMessage(this.model).subscribe(
       responseData => {
-        this.model = <any> responseData.body;
+        let contacts=[];
+        contacts=<any>responseData.body;
+       contacts.forEach(function(this:ContactComponent, contact:Contact){
+          this.model=contact;
+        }.bind(this));
         contactForm.resetForm();
       });
 
