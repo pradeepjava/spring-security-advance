@@ -1,28 +1,17 @@
 package com.eazybytes.config;
 
-import com.eazybytes.filters.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.security.provisioning.JdbcUserDetailsManager;
-import org.springframework.security.provisioning.UserDetailsManager;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
-import javax.sql.DataSource;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -31,6 +20,9 @@ public class ProjectConfig {
 
     @Bean
     SecurityFilterChain getSecurityFilterChainForProduction(HttpSecurity http) throws Exception {
+
+        JwtAuthenticationConverter jwtAuthenticationConverter=new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(new KeyCloakRoleConverter());
 
         CsrfTokenRequestAttributeHandler handler = new CsrfTokenRequestAttributeHandler();
         handler.setCsrfRequestAttributeName("_csrf");
@@ -52,11 +44,6 @@ public class ProjectConfig {
 
                 .csrf(csrf -> csrf.csrfTokenRequestHandler(handler).ignoringRequestMatchers("/contact", "/register")
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
-                .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)//this will execute after BasicAuthenticationFilter
-                .addFilterAfter(new AuthoritiesLoggingFilter(),BasicAuthenticationFilter.class)
-                .addFilterBefore(new ValidateUserFilter(), BasicAuthenticationFilter.class)//this will execute before BasicAuthenticationFilter
-                .addFilterAfter(new JWTTokenGenerationFilter(), BasicAuthenticationFilter.class)
-                .addFilterBefore(new JWTTokenValidatorFilter(), BasicAuthenticationFilter.class)
                 .authorizeHttpRequests()
 
                 .requestMatchers("/myAccount").hasRole("USER")
@@ -65,14 +52,9 @@ public class ProjectConfig {
                 .requestMatchers("/myLoans").hasRole("USER")
                 .requestMatchers("/user").authenticated()
                 .requestMatchers("/contact", "/notices", "/register").permitAll()
-                .and().formLogin()
-                .and().httpBasic();
+                .and().oauth2ResourceServer().jwt().jwtAuthenticationConverter(jwtAuthenticationConverter);
         return http.build();
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 }
 

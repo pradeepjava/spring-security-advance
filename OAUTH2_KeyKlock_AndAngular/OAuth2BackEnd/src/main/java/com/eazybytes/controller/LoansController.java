@@ -1,6 +1,8 @@
 package com.eazybytes.controller;
 
+import com.eazybytes.model.Customer;
 import com.eazybytes.model.Loans;
+import com.eazybytes.repository.CustomerRepository;
 import com.eazybytes.repository.LoanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,15 +16,17 @@ public class LoansController {
 
     @Autowired
     private LoanRepository loanRepository;
+    @Autowired
+    private CustomerRepository customerRepository;
 
     @GetMapping("/myLoans")
-    public List<Loans> getLoanDetails(@RequestParam int id) {
-        List<Loans> loans = loanRepository.findByCustomerIdOrderByStartDtDesc(id);
-        if (loans != null ) {
-            return loans;
-        }else {
-            return null;
+    public List<Loans> getLoanDetails(@RequestParam String email) {
+
+        List<Customer> customers = customerRepository.findByEmail(email);
+        if (!customers.isEmpty()) {
+            return loanRepository.findByCustomerIdOrderByStartDtDesc(customers.get(0).getId());
         }
+        return null;
     }
 
 }
