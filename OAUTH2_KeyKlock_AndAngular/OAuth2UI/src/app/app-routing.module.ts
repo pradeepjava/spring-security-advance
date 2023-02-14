@@ -16,7 +16,7 @@ const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full'},
   { path: 'home', component: HomeComponent},
   { path: 'login', component: LoginComponent},
-  { path: 'contact', component: ContactComponent},
+  { path: 'contact', component: ContactComponent, canActivate: [AuthKeyClockGuard], data:{roles:['USER']}},
   { path: 'notices', component: NoticesComponent},
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthKeyClockGuard], data:{}},
   { path: 'logout', component: LogoutComponent},

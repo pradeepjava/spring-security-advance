@@ -1,6 +1,8 @@
 package com.eazybytes.controller;
 
 import java.sql.Date;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +20,12 @@ public class ContactController {
     private ContactRepository contactRepository;
 
     @PostMapping("/contact")
-    public Contact saveContactInquiryDetails(@RequestBody Contact contact) {
+    public List<Contact> saveContactInquiryDetails(@RequestBody List<Contact> contacts) {
+        Contact contact=contacts.get(0);
         contact.setContactId(getServiceReqNumber());
         contact.setCreateDt(new Date(System.currentTimeMillis()));
-        return contactRepository.save(contact);
+        Contact savedContact = contactRepository.save(contact);
+        return Arrays.asList(savedContact);
     }
 
     public String getServiceReqNumber() {
