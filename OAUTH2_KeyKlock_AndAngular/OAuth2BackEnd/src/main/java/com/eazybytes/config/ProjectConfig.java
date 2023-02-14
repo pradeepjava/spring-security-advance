@@ -50,6 +50,7 @@ public class ProjectConfig {
                 .requestMatchers("/myBalance").hasAnyRole("USER", "ADMIN")
                 .requestMatchers("/myCards").hasRole("USER")
                 .requestMatchers("/myLoans").hasRole("USER")
+//                .requestMatchers("/contact").hasRole("USER")
                 .requestMatchers("/user").authenticated()
                 .requestMatchers("/contact", "/notices", "/register").permitAll()
                 .and().oauth2ResourceServer().jwt().jwtAuthenticationConverter(jwtAuthenticationConverter);
